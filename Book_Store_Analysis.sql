@@ -82,3 +82,22 @@ SELECT SUM(Stock) AS Total_Stock FROM Books;
 SELECT * FROM Books 
 WHERE Price = (SELECT MAX(Price) FROM Books);
 
+-- 7) Show all customers who ordered more than 1 quantity of a book:
+SELECT C.* FROM Customers C
+LEFT JOIN Orders O
+ON O.Customer_ID = C.Customer_ID
+WHERE O.Quantity > 1;
+
+-- 8) Retrieve all orders where the total amount exceeds $20:
+SELECT * FROM Orders WHERE Total_Amount > 20;
+
+-- 9) List all genres available in the Books table:
+SELECT DISTINCT(Genre) FROM Books;
+
+-- 10) Find the book with the lowest stock:
+SELECT * FROM Books WHERE Stock = (SELECT MIN(Stock) FROM Books);
+
+-- 11) Calculate the total revenue generated from all orders:
+SELECT SUM(Total_Amount) AS 'Total Revenue' FROM Orders;
+
+
