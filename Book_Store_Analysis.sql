@@ -101,3 +101,49 @@ SELECT * FROM Books WHERE Stock = (SELECT MIN(Stock) FROM Books);
 SELECT SUM(Total_Amount) AS 'Total Revenue' FROM Orders;
 
 
+-- Advance Questions :
+
+
+-- 1) Retrieve the total number of books sold for each genre:
+SELECT B.Genre, SUM(O.Quantity) AS 'Total Books Sold' FROM Books B
+JOIN Orders O
+ON B.Book_ID = O.Book_ID
+GROUP BY B.Genre;
+
+-- 2) Find the average price of books in the "Fantasy" genre:
+SELECT Genre,AVG(Price) AS 'Average Price' FROM Books 
+WHERE Genre = "Fantasy";
+
+-- 3) List customers who have placed at least 2 orders:
+WITH count_table AS(
+                        SELECT Customer_ID ,COUNT(Customer_ID) AS 'Number_of_Orders' FROM Orders 
+                        GROUP BY Customer_ID
+                    )
+    
+SELECT T.Customer_ID, C.Name, T.Number_of_Orders FROM Customers C
+RIGHT JOIN (
+                SELECT Customer_ID, Number_of_Orders FROM count_table
+                WHERE Number_of_Orders >= 2
+            ) T
+ON C.Customer_ID = T.Customer_ID;
+
+-- OR
+-- SELECT o.customer_id, c.name, COUNT(o.Order_id) AS ORDER_COUNT
+-- FROM orders o
+-- JOIN customers c ON o.customer_id=c.customer_id
+-- GROUP BY o.customer_id, c.name
+-- HAVING COUNT(Order_id) >=2;
+
+--4) Find the most frequently ordered book:
+WITH count_table AS(
+                        SELECT Book_ID ,COUNT(Order_ID) AS 'Number_of_Orders' FROM Orders 
+                        GROUP BY Book_ID   
+                    )
+    
+SELECT B.*,T.Number_of_Orders FROM Books B
+RIGHT JOIN (
+                SELECT Book_ID,Number_of_Orders FROM count_table
+                WHERE Number_of_Orders == (SELECT MAX(Number_of_Orders) FROM count_table)
+            ) T
+ON B.Book_ID = T.Book_ID;
+
