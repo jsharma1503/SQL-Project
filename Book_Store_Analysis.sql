@@ -147,3 +147,41 @@ RIGHT JOIN (
             ) T
 ON B.Book_ID = T.Book_ID;
 
+-- 5) Show the top 3 most expensive books of 'Fantasy' Genre:
+SELECT * FROM Books WHERE Genre == 'Fantasy'
+ORDER BY Price DESC LIMIT 3;
+
+-- 6) Retrieve the total quantity of books sold by each author:
+SELECT B.Author,SUM(O.Quantity) AS 'Total_Quantity_of_Books_Sold' FROM Books B
+JOIN Orders O
+ON B.Book_ID = O.Book_ID
+GROUP BY B.Author;
+
+-- 7) List the cities where customers who spent over $30 are located:
+WITH spent_table AS (
+                        SELECT Customer_ID, SUM(Total_Amount) AS 'Total_Spent' FROM Orders
+                        GROUP BY Customer_ID
+                    )
+
+SELECT DISTINCT(City) FROM Customers
+WHERE Customer_ID IN (SELECT Customer_ID FROM spent_table WHERE Total_Spent > 30 );
+
+-- 8) Find the customer who spent the most on orders:
+WITH spent_table AS (
+                        SELECT Customer_ID, SUM(Total_Amount) AS 'Total_Spent' FROM Orders
+                        GROUP BY Customer_ID
+                    )
+                
+SELECT * FROM Customers C
+RIGHT JOIN (SELECT Customer_ID, MAX(Total_Spent) FROM spent_table) T
+ON C.Customer_ID = T.Customer_ID;
+
+--9) Calculate the stock remaining after fulfilling all orders:
+WITH books_ordered AS (
+                        SELECT Book_ID, SUM(Quantity) AS 'Total_Books_Ordered' FROM Orders
+                        GROUP BY Book_ID
+                      )
+                         
+SELECT B.*, COALESCE((B.Stock - O.Total_Books_Ordered),B.Stock) AS 'Remaning_Stock' FROM Books B
+LEFT JOIN (SELECT * FROM books_ordered) O
+ON B.Book_ID = O.Book_ID;
